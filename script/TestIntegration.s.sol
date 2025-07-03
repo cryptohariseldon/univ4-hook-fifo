@@ -5,8 +5,13 @@ import "forge-std/Script.sol";
 import "../src/ContinuumSwapHook.sol";
 import "../src/ContinuumVerifier.sol";
 import "../src/libraries/OrderStructs.sol";
-import "../test/mocks/MockPoolManager.sol";
+import "../test/mocks/SimpleMockPoolManager.sol";
 import "../test/mocks/MockERC20.sol";
+import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
+import {PoolKey} from "v4-core/types/PoolKey.sol";
+import {Currency} from "v4-core/types/Currency.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
+import {BalanceDelta} from "v4-core/types/BalanceDelta.sol";
 
 contract TestIntegrationScript is Script {
     using OrderStructs for *;
@@ -14,7 +19,7 @@ contract TestIntegrationScript is Script {
     // Load deployed contracts from addresses
     ContinuumVerifier public verifier;
     ContinuumSwapHook public hook;
-    MockPoolManager public poolManager;
+    SimpleMockPoolManager public poolManager;
     MockERC20 public usdc;
     MockERC20 public weth;
     
@@ -64,7 +69,7 @@ contract TestIntegrationScript is Script {
         // For now, we'll use addresses from env
         verifier = ContinuumVerifier(vm.envAddress("VERIFIER_ADDRESS"));
         hook = ContinuumSwapHook(vm.envAddress("HOOK_ADDRESS"));
-        poolManager = MockPoolManager(vm.envAddress("POOL_MANAGER_ADDRESS"));
+        poolManager = SimpleMockPoolManager(vm.envAddress("POOL_MANAGER_ADDRESS"));
         usdc = MockERC20(vm.envAddress("USDC_ADDRESS"));
         weth = MockERC20(vm.envAddress("WETH_ADDRESS"));
         

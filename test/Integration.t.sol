@@ -5,7 +5,12 @@ import "forge-std/Test.sol";
 import "../src/ContinuumSwapHook.sol";
 import "../src/ContinuumVerifier.sol";
 import "../src/libraries/OrderStructs.sol";
-import "./mocks/MockPoolManager.sol";
+import "./mocks/SimpleMockPoolManager.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
+import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
+import {PoolKey} from "v4-core/types/PoolKey.sol";
+import {Currency} from "v4-core/types/Currency.sol";
+import {BalanceDelta} from "v4-core/types/BalanceDelta.sol";
 import "./mocks/MockERC20.sol";
 
 contract IntegrationTest is Test {
@@ -13,7 +18,7 @@ contract IntegrationTest is Test {
 
     ContinuumSwapHook public hook;
     ContinuumVerifier public verifier;
-    MockPoolManager public poolManager;
+    SimpleMockPoolManager public poolManager;
     
     MockERC20 public usdc;
     MockERC20 public weth;
@@ -27,7 +32,7 @@ contract IntegrationTest is Test {
     
     function setUp() public {
         // Deploy infrastructure
-        poolManager = new MockPoolManager();
+        poolManager = new SimpleMockPoolManager();
         usdc = new MockERC20("USD Coin", "USDC");
         weth = new MockERC20("Wrapped Ether", "WETH");
         

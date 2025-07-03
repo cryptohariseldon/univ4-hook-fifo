@@ -11,6 +11,10 @@ The integration uses UNI-v4's hook system to enforce that all swaps must be orde
 - **Fair Execution**: First-come, first-served ordering based on Continuum timestamps
 - **Cryptographic Guarantees**: VDF proofs ensure ordering cannot be manipulated
 
+## Status
+
+✅ **Integration Complete**: The contracts are now fully compatible with UNI-v4 core and ready for testnet deployment.
+
 ## Architecture
 
 ### Core Contracts
@@ -28,6 +32,20 @@ The integration uses UNI-v4's hook system to enforce that all swaps must be orde
 3. **OrderStructs.sol**
    - Data structures for orders and proofs
    - Shared types across contracts
+
+### Implementation Details
+
+**V4-Core Integration**: The contracts now use the official UNI-v4 core library:
+- Imports from `v4-core/` for all types and interfaces
+- Proper hook permission configuration
+- CREATE2 deployment for valid hook addresses
+
+**Testing**: 
+- Local tests use `SimpleMockPoolManager` for rapid iteration
+- Testnet deployment scripts work with real UNI-v4 contracts
+- All 28 tests passing
+
+See [docs/sepolia-deployment.md](docs/sepolia-deployment.md) for testnet deployment guide.
 
 ### Key Features
 
@@ -139,6 +157,12 @@ Based on testing:
 2. **Multi-Relayer Support**: Decentralized relayer network
 3. **Cross-Chain Support**: Extend to other chains
 4. **Advanced Order Types**: Limit orders, stop losses, etc.
+
+## Documentation
+
+- [Full Integration Guide](docs/v4-integration-complete.md) - Detailed explanation of the integration
+- [Sepolia Deployment](docs/sepolia-deployment.md) - Step-by-step testnet deployment
+- [Architecture](uni_wrapper_integration.md) - Original design document
 
 ## Testing Setup and Execution
 

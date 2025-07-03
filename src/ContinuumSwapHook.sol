@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {IHooks} from "./interfaces/IHooks.sol";
-import {IPoolManager} from "./interfaces/IPoolManager.sol";
-import {PoolKey} from "./libraries/PoolKey.sol";
-import {BalanceDelta} from "./libraries/BalanceDelta.sol";
-import {Currency} from "./libraries/Currency.sol";
-import {BeforeSwapDelta} from "./interfaces/IHooks.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
+import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
+import {PoolKey} from "v4-core/types/PoolKey.sol";
+import {BalanceDelta} from "v4-core/types/BalanceDelta.sol";
+import {Currency} from "v4-core/types/Currency.sol";
+import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "v4-core/types/BeforeSwapDelta.sol";
+import {Hooks} from "v4-core/libraries/Hooks.sol";
 import {OrderStructs} from "./libraries/OrderStructs.sol";
 import {ContinuumVerifier} from "./ContinuumVerifier.sol";
-import {Hooks} from "./libraries/Hooks.sol";
 import {BaseHook} from "./BaseHook.sol";
 
 contract ContinuumSwapHook is BaseHook {
     using OrderStructs for *;
     using Hooks for IHooks;
+    using BeforeSwapDeltaLibrary for BeforeSwapDelta;
 
     ContinuumVerifier public immutable verifier;
     IPoolManager public immutable poolManager;
@@ -56,25 +57,6 @@ contract ContinuumSwapHook is BaseHook {
         poolManager = _poolManager;
         verifier = _verifier;
         authorizedRelayers[msg.sender] = true;
-    }
-
-    function getHookPermissions() public pure override returns (Hooks.Permissions memory) {
-        return Hooks.Permissions({
-            beforeInitialize: false,
-            afterInitialize: false,
-            beforeAddLiquidity: false,
-            afterAddLiquidity: false,
-            beforeRemoveLiquidity: false,
-            afterRemoveLiquidity: false,
-            beforeSwap: true,
-            afterSwap: true,
-            beforeDonate: false,
-            afterDonate: false,
-            beforeSwapReturnDelta: false,
-            afterSwapReturnDelta: false,
-            afterAddLiquidityReturnDelta: false,
-            afterRemoveLiquidityReturnDelta: false
-        });
     }
 
     function beforeSwap(
@@ -231,5 +213,24 @@ contract ContinuumSwapHook is BaseHook {
 
     function isOrderExecuted(bytes32 orderId) external view returns (bool) {
         return executedOrders[orderId];
+    }
+
+    function getHookPermissions() public pure override returns (Hooks.Permissions memory) {
+        return Hooks.Permissions({
+            beforeInitialize: false,
+            afterInitialize: false,
+            beforeAddLiquidity: false,
+            afterAddLiquidity: false,
+            beforeRemoveLiquidity: false,
+            afterRemoveLiquidity: false,
+            beforeSwap: true,
+            afterSwap: true,
+            beforeDonate: false,
+            afterDonate: false,
+            beforeSwapReturnDelta: false,
+            afterSwapReturnDelta: false,
+            afterAddLiquidityReturnDelta: false,
+            afterRemoveLiquidityReturnDelta: false
+        });
     }
 }

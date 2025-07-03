@@ -4,14 +4,18 @@ pragma solidity ^0.8.26;
 import "forge-std/Script.sol";
 import "../src/ContinuumSwapHook.sol";
 import "../src/ContinuumVerifier.sol";
-import "../test/mocks/MockPoolManager.sol";
+import "../test/mocks/SimpleMockPoolManager.sol";
+import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
+import {PoolKey} from "v4-core/types/PoolKey.sol";
+import {Currency} from "v4-core/types/Currency.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
 import "../test/mocks/MockERC20.sol";
 
 contract DeployScript is Script {
     // Deployed contract addresses
     ContinuumVerifier public verifier;
     ContinuumSwapHook public hook;
-    MockPoolManager public poolManager;
+    SimpleMockPoolManager public poolManager;
     MockERC20 public usdc;
     MockERC20 public weth;
     
@@ -44,7 +48,7 @@ contract DeployScript is Script {
         
         // Deploy mock pool manager
         console.log("\nDeploying mock pool manager...");
-        poolManager = new MockPoolManager();
+        poolManager = new SimpleMockPoolManager();
         console.log("Pool Manager deployed at:", address(poolManager));
         
         // Deploy Continuum contracts

@@ -5,8 +5,13 @@ import "forge-std/Script.sol";
 import "../src/ContinuumSwapHook.sol";
 import "../src/ContinuumVerifier.sol";
 import "../src/libraries/OrderStructs.sol";
-import "../test/mocks/MockPoolManager.sol";
+import "../test/mocks/SimpleMockPoolManager.sol";
 import "../test/mocks/MockERC20.sol";
+import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
+import {PoolKey} from "v4-core/types/PoolKey.sol";
+import {Currency} from "v4-core/types/Currency.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
+import {BalanceDelta} from "v4-core/types/BalanceDelta.sol";
 
 contract LocalDemoScript is Script {
     using OrderStructs for *;
@@ -26,7 +31,7 @@ contract LocalDemoScript is Script {
         console.log("1. Deploying contracts...");
         MockERC20 usdc = new MockERC20("USD Coin", "USDC");
         MockERC20 weth = new MockERC20("Wrapped Ether", "WETH");
-        MockPoolManager poolManager = new MockPoolManager();
+        SimpleMockPoolManager poolManager = new SimpleMockPoolManager();
         ContinuumVerifier verifier = new ContinuumVerifier();
         ContinuumSwapHook hook = new ContinuumSwapHook(IPoolManager(address(poolManager)), verifier);
         

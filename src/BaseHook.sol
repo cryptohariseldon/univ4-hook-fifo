@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {IHooks} from "./interfaces/IHooks.sol";
-import {IPoolManager} from "./interfaces/IPoolManager.sol";
-import {PoolKey} from "./libraries/PoolKey.sol";
-import {BalanceDelta} from "./libraries/BalanceDelta.sol";
-import {BeforeSwapDelta} from "./interfaces/IHooks.sol";
-import {Hooks} from "./libraries/Hooks.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
+import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
+import {PoolKey} from "v4-core/types/PoolKey.sol";
+import {BalanceDelta} from "v4-core/types/BalanceDelta.sol";
+import {BeforeSwapDelta} from "v4-core/types/BeforeSwapDelta.sol";
+import {Hooks} from "v4-core/libraries/Hooks.sol";
 
 abstract contract BaseHook is IHooks {
     error HookNotImplemented();
 
-    function beforeInitialize(address, PoolKey calldata, uint160, bytes calldata) external virtual returns (bytes4) {
+    function beforeInitialize(address, PoolKey calldata, uint160) external virtual returns (bytes4) {
         revert HookNotImplemented();
     }
 
-    function afterInitialize(address, PoolKey calldata, uint160, int24, bytes calldata) external virtual returns (bytes4) {
+    function afterInitialize(address, PoolKey calldata, uint160, int24) external virtual returns (bytes4) {
         revert HookNotImplemented();
     }
 

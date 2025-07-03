@@ -5,7 +5,11 @@ import "forge-std/Test.sol";
 import "../src/ContinuumSwapHook.sol";
 import "../src/ContinuumVerifier.sol";
 import "../src/libraries/OrderStructs.sol";
-import "./mocks/MockPoolManager.sol";
+import "./mocks/SimpleMockPoolManager.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
+import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
+import {PoolKey} from "v4-core/types/PoolKey.sol";
+import {Currency} from "v4-core/types/Currency.sol";
 import "./mocks/MockERC20.sol";
 
 contract ContinuumSwapHookTest is Test {
@@ -13,7 +17,7 @@ contract ContinuumSwapHookTest is Test {
 
     ContinuumSwapHook public hook;
     ContinuumVerifier public verifier;
-    MockPoolManager public poolManager;
+    SimpleMockPoolManager public poolManager;
     
     MockERC20 public token0;
     MockERC20 public token1;
@@ -26,7 +30,7 @@ contract ContinuumSwapHookTest is Test {
     
     function setUp() public {
         // Deploy mocks
-        poolManager = new MockPoolManager();
+        poolManager = new SimpleMockPoolManager();
         token0 = new MockERC20("Token0", "TK0");
         token1 = new MockERC20("Token1", "TK1");
         
