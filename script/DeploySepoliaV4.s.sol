@@ -13,7 +13,7 @@ import {Hooks} from "v4-core/libraries/Hooks.sol";
 contract DeploySepoliaV4Script is Script {
     // Base Sepolia UNI-v4 addresses
     address constant BASE_SEPOLIA_POOL_MANAGER = 0x7Da1D65F8B249183667cdE74C5CBD46dD38AA829;
-    address constant BASE_SEPOLIA_POSITION_MANAGER = 0x1a9062E4FAe8ab7580616B288e2BCBD10F8923B5;
+    address constant BASE_SEPOLIA_POSITION_MANAGER = 0x1A9062e4fAe8aB7580616b288E2bcbD10F8923B5;
     
     // Sepolia testnet addresses (if available)
     address constant SEPOLIA_POOL_MANAGER = address(0); // Update when available
@@ -98,7 +98,7 @@ contract DeploySepoliaV4Script is Script {
     
     function findValidHookAddress(
         address poolManager,
-        address verifier,
+        address verifierAddr,
         address deployer
     ) internal pure returns (bytes32 salt, address hookAddress) {
         // Required permissions: beforeSwap and afterSwap
@@ -106,7 +106,7 @@ contract DeploySepoliaV4Script is Script {
         
         for (uint256 i = 0; i < 100000; i++) {
             salt = bytes32(i);
-            hookAddress = computeCreate2Address(salt, poolManager, verifier, deployer);
+            hookAddress = computeCreate2Address(salt, poolManager, verifierAddr, deployer);
             
             if (isValidHookAddress(hookAddress, requiredPermissions)) {
                 return (salt, hookAddress);
@@ -119,12 +119,12 @@ contract DeploySepoliaV4Script is Script {
     function computeCreate2Address(
         bytes32 salt,
         address poolManager,
-        address verifier,
+        address verifierAddr,
         address deployer
     ) internal pure returns (address) {
         bytes memory bytecode = abi.encodePacked(
             type(ContinuumSwapHook).creationCode,
-            abi.encode(poolManager, verifier)
+            abi.encode(poolManager, verifierAddr)
         );
         
         bytes32 hash = keccak256(
@@ -149,20 +149,20 @@ contract DeploySepoliaV4Script is Script {
     function deployHookWithCreate2(
         bytes32 salt,
         address poolManager,
-        address verifier
+        address verifierAddr
     ) internal returns (ContinuumSwapHook) {
         bytes memory bytecode = abi.encodePacked(
             type(ContinuumSwapHook).creationCode,
-            abi.encode(poolManager, verifier)
+            abi.encode(poolManager, verifierAddr)
         );
         
-        address hook;
+        address hookAddr;
         assembly {
-            hook := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
+            hookAddr := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
         }
         
-        require(hook != address(0), "Hook deployment failed");
-        return ContinuumSwapHook(hook);
+        require(hookAddr != address(0), "Hook deployment failed");
+        return ContinuumSwapHook(hookAddr);
     }
     
     function _saveDeploymentAddresses(string memory network) internal {
