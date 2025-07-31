@@ -36,9 +36,29 @@ class TickExecutor {
       // Execute on-chain
       this.logger.info(`Executing tick ${tickNumber} with ${swaps.length} swaps...`);
       
+      // Format the swaps properly for the contract
+      const formattedSwaps = swaps.map(swap => ({
+        user: swap.user,
+        poolKey: {
+          currency0: swap.poolKey.currency0,
+          currency1: swap.poolKey.currency1,
+          fee: swap.poolKey.fee,
+          tickSpacing: swap.poolKey.tickSpacing,
+          hooks: swap.poolKey.hooks
+        },
+        params: {
+          zeroForOne: swap.params.zeroForOne,
+          amountSpecified: swap.params.amountSpecified,
+          sqrtPriceLimitX96: swap.params.sqrtPriceLimitX96
+        },
+        deadline: swap.deadline,
+        sequenceNumber: swap.sequenceNumber,
+        signature: swap.signature || '0x'
+      }));
+      
       const tx = await this.contracts.hook.executeTick(
         tickNumber,
-        swaps,
+        formattedSwaps,
         proof,
         this.previousOutput,
         {
