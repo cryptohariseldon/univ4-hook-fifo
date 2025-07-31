@@ -1,6 +1,6 @@
 # UNI-v4 Continuum Integration
 
-This repository contains the smart contracts for integrating Uniswap V4 with Continuum's cryptographic sequencing layer to prevent frontrunning and MEV extraction.
+This repository contains the smart contracts and relayer service for integrating Uniswap V4 with Continuum's cryptographic sequencing layer to prevent frontrunning and MEV extraction.
 
 ## Overview
 
@@ -13,7 +13,10 @@ The integration uses UNI-v4's hook system to enforce that all swaps must be orde
 
 ## Status
 
-✅ **Integration Complete**: The contracts are now fully compatible with UNI-v4 core and ready for testnet deployment.
+✅ **Smart Contracts**: Fully implemented and tested  
+✅ **Relayer Service**: Complete Node.js implementation with REST API  
+✅ **Local Testing**: Working on Anvil with mock VDF proofs  
+⚠️ **Known Issue**: VDF proof chain validation requires proper tick sequencing
 
 ## Architecture
 
@@ -32,6 +35,26 @@ The integration uses UNI-v4's hook system to enforce that all swaps must be orde
 3. **OrderStructs.sol**
    - Data structures for orders and proofs
    - Shared types across contracts
+
+### Relayer Service
+
+The `/relayer` directory contains a Node.js implementation of a Continuum relayer:
+
+1. **REST API** (port 8091)
+   - `POST /api/submit-order` - Submit swap orders
+   - `GET /api/order/:orderId` - Check order status
+   - `GET /api/tick/:tickNumber` - Get executed tick details
+   - `GET /api/status` - Relayer status and metrics
+
+2. **Core Components**
+   - **OrderQueue**: Manages pending orders with deadline validation
+   - **VDFVerifier**: Generates and verifies VDF proofs (mock for testing)
+   - **TickExecutor**: Submits ordered swaps to the blockchain
+   - **10ms tick processing** for ultra-fast execution
+
+3. **Authentication**
+   - On-chain authorization via `authorizedRelayers` mapping
+   - Only authorized addresses can submit tick executions
 
 ### Implementation Details
 
@@ -121,17 +144,21 @@ Users submit swap orders to Continuum via the client SDK (not included in this r
 
 ### For Relayers
 
-Authorized relayers monitor Continuum for new ticks and execute them onchain:
+A complete relayer service is included in the `/relayer` directory. See [relayer/README.md](relayer/README.md) for details.
 
-```solidity
-// Execute a tick with ordered swaps
-hook.executeTick(
-    tickNumber,
-    orderedSwaps,
-    vdfProof,
-    previousTickOutput
-);
+Quick start:
+```bash
+# Start local node
+./start_local_node.sh
+
+# Deploy contracts
+forge script script/LocalDemo.s.sol --rpc-url http://localhost:8545 --broadcast
+
+# Start relayer (on port 8091)
+./start_relayer.sh
 ```
+
+The relayer provides REST API endpoints for order submission and monitoring.
 
 ### For LPs
 
@@ -143,6 +170,29 @@ Based on testing:
 - Single swap execution: ~150k gas
 - Batch of 10 swaps: ~1M gas (~100k per swap)
 - Batch of 50 swaps: ~4M gas (~80k per swap)
+
+## Troubleshooting
+
+### Common Issues
+
+1. **`InvalidTickProof` Error**
+   - Ensure tick numbers are sequential (no gaps)
+   - Previous tick's output must be used as input for next tick
+   - VDF proof must match the batch hash
+
+2. **`TickAlreadyExecuted` Error**
+   - Each tick number can only be used once
+   - Check last executed tick before submitting
+
+3. **Relayer ABI Issues**
+   - Ensure contracts are compiled: `forge build`
+   - Check ABI files exist in `/out` directory
+   - Verify contract addresses in `.env` file
+
+4. **Transaction Reverts**
+   - Check relayer is authorized on-chain
+   - Verify sufficient ETH balance
+   - Enable debug logging for detailed error info
 
 ## Security Considerations
 
