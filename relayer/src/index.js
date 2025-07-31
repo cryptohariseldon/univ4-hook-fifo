@@ -130,10 +130,10 @@ async function initialize() {
           // In production, this would wait for VDF proof from Continuum
           // For demo, we generate a mock proof
           const tickNumber = tickExecutor.lastProcessedTick + 1;
-          const proof = await vdfVerifier.generateMockProof(tickNumber, orders);
+          const { proof, batchData } = await vdfVerifier.generateMockProof(tickNumber, orders);
           
-          // Execute on-chain
-          await tickExecutor.executeTick(tickNumber, orders, proof);
+          // Execute on-chain with properly formatted data
+          await tickExecutor.executeTick(tickNumber, batchData, proof);
           
           // Clear processed orders
           await orderQueue.clearBatch(orders);

@@ -6,7 +6,7 @@ class TickExecutor {
     this.contracts = contracts;
     this.wallet = wallet;
     this.logger = logger;
-    this.lastProcessedTick = 0;
+    this.lastProcessedTick = 1; // Start from tick 2 since tick 1 was used in demo
     this.previousOutput = ethers.ZeroHash;
   }
   
@@ -23,52 +23,48 @@ class TickExecutor {
         };
       }
       
-      // Prepare swap data for contract
-      const swaps = orders.map((order, index) => ({
-        user: order.user,
-        poolKey: order.poolKey,
-        params: order.params,
-        deadline: order.deadline || Math.floor(Date.now() / 1000) + config.ORDER_VALIDITY_SECONDS,
-        sequenceNumber: order.sequenceNumber || (tickNumber * 1000 + index),
-        signature: order.signature || '0x'
-      }));
+      // Orders should already be properly formatted from VDFVerifier
+      const swaps = orders;
       
       // Execute on-chain
       this.logger.info(`Executing tick ${tickNumber} with ${swaps.length} swaps...`);
       
-      // Format the swaps properly for the contract
-      const formattedSwaps = swaps.map(swap => ({
-        user: swap.user,
-        poolKey: {
-          currency0: swap.poolKey.currency0,
-          currency1: swap.poolKey.currency1,
-          fee: swap.poolKey.fee,
-          tickSpacing: swap.poolKey.tickSpacing,
-          hooks: swap.poolKey.hooks
-        },
-        params: {
-          zeroForOne: swap.params.zeroForOne,
-          amountSpecified: swap.params.amountSpecified,
-          sqrtPriceLimitX96: swap.params.sqrtPriceLimitX96
-        },
-        deadline: swap.deadline,
-        sequenceNumber: swap.sequenceNumber,
-        signature: swap.signature || '0x'
-      }));
+      // Debug logging
+      this.logger.info(`Contract address: ${this.contracts.hook.target}`);
+      this.logger.info(`Swap data: ${JSON.stringify(swaps[0])}`);
+      this.logger.info(`Proof: ${JSON.stringify(proof)}`);
       
-      const tx = await this.contracts.hook.executeTick(
-        tickNumber,
-        formattedSwaps,
-        proof,
-        this.previousOutput,
-        {
-          gasLimit: config.GAS_LIMIT,
-          maxFeePerGas: ethers.parseUnits('20', 'gwei'),
-          maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei')
-        }
-      );
-      
-      this.logger.info(`Transaction submitted: ${tx.hash}`);
+      let tx;
+      try {
+        // Encode the function call manually to debug
+        const iface = this.contracts.hook.interface;
+        const encodedData = iface.encodeFunctionData('executeTick', [
+          tickNumber,
+          swaps,
+          proof,
+          this.previousOutput
+        ]);
+        
+        this.logger.info(`Encoded data length: ${encodedData.length}`);
+        this.logger.info(`First 10 bytes: ${encodedData.slice(0, 20)}`);
+        
+        tx = await this.contracts.hook.executeTick(
+          tickNumber,
+          swaps,
+          proof,
+          this.previousOutput,
+          {
+            gasLimit: config.GAS_LIMIT,
+            maxFeePerGas: ethers.parseUnits('20', 'gwei'),
+            maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei')
+          }
+        );
+        
+        this.logger.info(`Transaction submitted: ${tx.hash}`);
+      } catch (encodeError) {
+        this.logger.error(`Encoding error: ${encodeError.message}`);
+        throw encodeError;
+      }
       
       const receipt = await tx.wait();
       this.logger.info(`Tick ${tickNumber} executed successfully. Gas used: ${receipt.gasUsed.toString()}`);

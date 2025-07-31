@@ -239,3 +239,35 @@ eth_chainId
 
 eth_chainId
 eth_getTransactionReceipt
+eth_chainId
+eth_getTransactionCount
+eth_chainId
+eth_blockNumber
+eth_sendRawTransaction
+eth_chainId
+
+    Transaction: 0x5571cefd55165bc2f952a86d5a5e36ebe6715e2eb189964adfdd7104d36e07e3
+    Gas used: 35140
+    Error: reverted with: custom error 0x11649daf
+
+    Block Number: 6
+    Block Hash: 0x40174c89cd41aa344055d57eee675880ece263962d33a957916b48f6e7b297cf
+    Block Time: "Thu, 31 Jul 2025 11:52:17 +0000"
+
+eth_chainId
+eth_getTransactionReceipt
+eth_chainId
+eth_getTransactionCount
+eth_chainId
+eth_blockNumber
+eth_sendRawTransaction
+eth_chainId
+
+    Transaction: 0x67671a96c0d7be731b1bebb59e73318aaa66ee2a1bc2496e5a11e72447a87321
+    Gas used: 35140
+    Error: reverted with: custom error 0x11649daf
+
+    Block Number: 7
+    Block Hash: 0x665393c786cd340c39fe11eb8179d1dabf9691da3349f849f3e7b662f9f9dd82
+    Block Time: "Thu, 31 Jul 2025 11:54:11 +0000"
+
