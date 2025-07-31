@@ -114,7 +114,7 @@ contract TestSwapV4Script is Script {
         
         OrderStructs.VdfProof memory proof = OrderStructs.VdfProof({
             input: abi.encodePacked(previousOutput, batchHash),
-            output: keccak256(abi.encodePacked("test_tick_", tickNumber)),
+            output: abi.encodePacked(keccak256(abi.encodePacked("test_tick_", tickNumber))),
             proof: abi.encodePacked(uint256(1)), // Mock proof
             iterations: 27
         });
